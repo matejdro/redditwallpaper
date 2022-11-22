@@ -1,41 +1,44 @@
-use std::fmt::{Debug, Error, Formatter};
+mod reddit_model;
 
-struct Image  {
+
+use std::fmt::{Debug};
+
+use crate::reddit_model::{RedditResponseRoot};
+
+#[derive(Debug)]
+struct Image {
     url: String,
     width: i32,
     height: i32,
 }
 
-impl Debug for Image {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("")
-            .field(&self.url)
-            .field(&self.width)
-            .field(&self.height)
-            .finish()
+#[tokio::main]
+async fn main() {
+    let images = load_images_from_reddit().await;
+    match images {
+        Ok(_) => {
+            println!("Got images: {:?}", images);
+        }
+        Err(err) => {
+            println!("Loading error: {}", err.to_string())
+        }
     }
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-    let images = load_images_from_reddit().await?;
+async fn load_images_from_reddit() -> Result<Vec<Image>, reqwest::Error> {
+    let url = "https://www.reddit.com/r/wallpapers/top/.json?sort=top&t=week&limit=20";
+    let client = reqwest::Client::new();
+    let resp = client.get(url)
+        .header("User-Agent", "Background changer by /u/matejdro - github.com/matejdro/redditwallpaper")
+        .send()
+        .await?
+        .json::<RedditResponseRoot>()
+        .await?;
 
-    println!("Got images: {:?}", images);
-    return Ok(());
-}
+    let raw_image_datas = resp.data.children.iter().filter_map(
+        |post| Some(post.data.preview.as_ref()?.images.first()?.source.clone())
+    );
 
-async fn load_images_from_reddit() -> Result<Vec<Image>, Error> {
-    return Ok(vec![
-        Image {
-            url: "images.com/image1.png".to_string(),
-            width: 1280,
-            height: 720
-        },
-        Image {
-            url: "images.com/image2.png".to_string(),
-            width: 1920,
-            height: 1080
-        }
-    ])
-    // return Ok(Vec::new())
+
+    return Ok(raw_image_datas.map(|source| Image { url: source.url, width: source.width, height: source.height }).collect());
 }
