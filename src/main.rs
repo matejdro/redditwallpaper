@@ -41,7 +41,10 @@ fn download_random_image(images: Vec<Image>) {
     let random_index = rand::thread_rng().gen_range(0..suitable_images.len());
 
     let image = suitable_images.into_iter().nth(random_index).unwrap();
-    println!("Selected {}", image.url)
+    let mut escaped_url: String = String::new();
+    html_escape::decode_html_entities_to_string(image.url, &mut escaped_url);
+
+    println!("Selected {}", escaped_url)
 }
 
 async fn load_images_from_reddit() -> Result<Vec<Image>, reqwest::Error> {
