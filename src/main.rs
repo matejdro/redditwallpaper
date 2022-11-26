@@ -35,8 +35,8 @@ async fn load_images_from_reddit() -> Result<Vec<Image>, reqwest::Error> {
         .json::<RedditResponseRoot>()
         .await?;
 
-    let raw_image_datas = resp.data.children.iter().filter_map(
-        |post| Some(post.data.preview.as_ref()?.images.first()?.source.clone())
+    let raw_image_datas = resp.data.children.into_iter().filter_map(
+        |post| Some(post.data.preview?.images.into_iter().next()?.source)
     );
 
 
