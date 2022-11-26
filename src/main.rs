@@ -1,4 +1,6 @@
+use std::error::Error;
 use std::fmt::Debug;
+use std::io::Cursor;
 
 use rand::Rng;
 
@@ -19,7 +21,7 @@ async fn main() {
     let images_res = load_images_from_reddit().await;
     match images_res {
         Ok(images) => {
-            download_random_image(images)
+            download_random_image(images).await
         }
         Err(err) => {
             println!("Loading error: {}", err)
@@ -27,7 +29,7 @@ async fn main() {
     }
 }
 
-fn download_random_image(images: Vec<Image>) {
+async fn download_random_image(images: Vec<Image>) {
     let suitable_images: Vec<Image> = images.into_iter().filter(|i| {
         let aspect_ratio = i.width as f32 / i.height as f32;
         i.width > 1000 && (aspect_ratio - 1.77).abs() < 0.2
@@ -44,7 +46,24 @@ fn download_random_image(images: Vec<Image>) {
     let mut escaped_url: String = String::new();
     html_escape::decode_html_entities_to_string(image.url, &mut escaped_url);
 
-    println!("Selected {}", escaped_url)
+    println!("Selected {}", escaped_url);
+
+    let result = fetch_url(escaped_url, String::from("background.webp")).await;
+
+    match result {
+        Ok(_) => {}
+        Err(e) => {
+            println!("Download error: {}", (*e).to_string())
+        }
+    }
+}
+
+async fn fetch_url(url: String, file_name: String) -> Result<(), Box<dyn Error>> {
+    let response = reqwest::get(url).await?;
+    let mut file = std::fs::File::create(file_name)?;
+    let mut content = Cursor::new(response.bytes().await?);
+    std::io::copy(&mut content, &mut file)?;
+    Ok(())
 }
 
 async fn load_images_from_reddit() -> Result<Vec<Image>, reqwest::Error> {
