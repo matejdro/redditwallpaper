@@ -30,7 +30,7 @@ async fn main() {
 fn download_random_image(images: Vec<Image>) {
     let suitable_images: Vec<Image> = images.into_iter().filter(|i| {
         let aspect_ratio = i.width as f32 / i.height as f32;
-        i.width >= 2560 && (aspect_ratio - 1.77).abs() < 0.01
+        i.width > 1000 && (aspect_ratio - 1.77).abs() < 0.2
     }).collect();
 
     if suitable_images.is_empty() {
