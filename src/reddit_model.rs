@@ -60,8 +60,6 @@ pub struct Data2 {
     pub top_awarded_type: Value,
     #[serde(rename = "hide_score")]
     pub hide_score: bool,
-    #[serde(rename = "media_metadata")]
-    pub name: String,
     pub quarantine: bool,
     #[serde(rename = "link_flair_text_color")]
     pub link_flair_text_color: String,
@@ -334,13 +332,13 @@ pub struct ResizedStaticIcon {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Preview {
-    pub images: Vec<Image>,
+    pub images: Vec<RedditImage>,
     pub enabled: bool,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Image {
+pub struct RedditImage {
     pub source: Source,
     pub resolutions: Vec<Resolution>,
     pub variants: Variants,
