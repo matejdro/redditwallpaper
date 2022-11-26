@@ -1,8 +1,8 @@
 use std::fmt::Debug;
-use std::iter::FilterMap;
+
 use rand::Rng;
 
-use crate::reddit_model::{Data2, Preview, RedditImage, RedditResponseRoot, Source};
+use crate::reddit_model::{RedditResponseRoot};
 
 mod reddit_model;
 
