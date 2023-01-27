@@ -67,7 +67,7 @@ async fn fetch_url(url: String, file_name: String) -> Result<(), Box<dyn Error>>
 }
 
 async fn load_images_from_reddit() -> Result<Vec<Image>, reqwest::Error> {
-    let url = "https://www.reddit.com/r/wallpapers/top/.json?sort=top&t=week&limit=20";
+    let url = "https://www.reddit.com/r/wallpapers/top/.json?sort=top&t=month&limit=50";
     let client = reqwest::Client::new();
 
     let resp = client.get(url)
