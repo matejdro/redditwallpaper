@@ -11,6 +11,7 @@ mod reddit_model;
 
 #[derive(Debug, Clone)]
 struct Image {
+    source_thread: String,
     url: String,
     width: i32,
     height: i32,
@@ -46,7 +47,7 @@ async fn download_random_image(images: Vec<Image>) {
     let mut escaped_url: String = String::new();
     html_escape::decode_html_entities_to_string(image.url, &mut escaped_url);
 
-    println!("Selected {}", escaped_url);
+    println!("Selected {} from https://www.reddit.com{}", escaped_url, image.source_thread);
 
     let result = fetch_url(escaped_url, String::from("background.webp")).await;
 
@@ -78,8 +79,11 @@ async fn load_images_from_reddit() -> Result<Vec<Image>, reqwest::Error> {
         .await?;
 
     let raw_image_datas = resp.data.children.into_iter().filter_map(
-        |post| Some(post.data.preview?.images.into_iter().next()?.source)
+        |post| {
+            let source = post.data.preview?.images.into_iter().next()?.source;
+            return Some(Image { source_thread: post.data.permalink, url: source.url, width: source.width, height: source.height });
+        }
     );
 
-    return Ok(raw_image_datas.map(|source| Image { url: source.url, width: source.width, height: source.height }).collect());
+    return Ok(raw_image_datas.collect());
 }
