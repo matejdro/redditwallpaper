@@ -68,7 +68,10 @@ async fn fetch_url(url: String, file_name: String) -> Result<(), Box<dyn Error>>
 }
 
 async fn load_images_from_reddit() -> Result<Vec<Image>, reqwest::Error> {
-    let url = "https://www.reddit.com/r/wallpapers/top/.json?sort=top&t=month&limit=50";
+    let subreddits = ["wallpapers"];
+    let random_subreddit = rand::thread_rng().gen_range(0..subreddits.len());
+    let url = String::new() + "https://www.reddit.com/r/" + &subreddits[random_subreddit] + "/top/.json?sort=top&t=month&limit=50";
+    println!("URL {}", url);
     let client = reqwest::Client::new();
 
     let resp = client.get(url)

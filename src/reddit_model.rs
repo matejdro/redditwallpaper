@@ -32,8 +32,6 @@ pub struct Children {
 #[serde(rename_all = "camelCase")]
 pub struct Data2 {
     pub permalink: String,
-    #[serde(rename = "parent_whitelist_status")]
-    pub url: String,
     pub preview: Option<Preview>,
 }
 
